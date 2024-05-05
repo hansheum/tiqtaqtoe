@@ -1,30 +1,33 @@
 import random
 
-# Dictionary of dice: Contains colours = [value, dice1, dice2, dice3, dice4], with dice = [position, probability].
+# Dictionary of dice: Contains colours = [value, dice1, dice2, dice3, dice4]
 xColours = {'green', 'turq', 'blue', 'purple', 'sparkle'}
 oColours = {'yellow', 'orange', 'grey', 'blank'}
 allColours = {'green', 'turq', 'blue', 'purple', 'sparkle', 'yellow', 'orange', 'grey', 'blank'}
 
-# Initialize dice
+# Initialize dice = dictionary of colours, each with four dice, each die = [position, probability]
+# (where position = -1 means not placed on board).
 dice = {'green': [], 'turq': [], 'blue': [], 'purple': [], 'sparkle': [],
         'yellow': [], 'orange': [], 'grey': [], 'blank': []}
 for colour in xColours:
-    dice[colour] = ['X', [-1,0.0], [-1,0.0], [-1,0.0], [-1,0.0]]
+    dice[colour] = ['X', [-1, 0.0], [-1, 0.0], [-1, 0.0], [-1, 0.0]]
 for colour in oColours:
-    dice[colour] = ['O', [-1,0.0], [-1,0.0], [-1,0.0], [-1,0.0]]
+    dice[colour] = ['O', [-1, 0.0], [-1, 0.0], [-1, 0.0], [-1, 0.0]]
 
-# Game board: [square0, ..., square8], with squarei = [[X, probX], [O, probO]]
+#print(dice)
+
+# Game board: [square0, ..., square8], with squarei = [[X, probX, colour, die number], [O, probO, colour, die number]]
 mainBoard = [
-    [['X',0.0], ['O',0.0]], [['X',0.0], ['O',0.0]], [['X',0.0], ['O',0.0]],
-    [['X',0.0], ['O',0.0]], [['X',0.0], ['O',0.0]], [['X',0.0], ['O',0.0]],
-    [['X',0.0], ['O',0.0]], [['X',0.0], ['O',0.0]], [['X',0.0], ['O',0.0]]
+    [['X', 0.0, 'empty', -1], ['O', 0.0, 'empty', -1]], [['X', 0.0, 'empty', -1], ['O', 0.0, 'empty', -1]], [['X', 0.0, 'empty', -1], ['O', 0.0, 'empty', -1]],
+    [['X', 0.0, 'empty', -1], ['O', 0.0, 'empty', -1]], [['X', 0.0, 'empty', -1], ['O', 0.0, 'empty', -1]], [['X', 0.0, 'empty', -1], ['O', 0.0, 'empty', -1]],
+    [['X', 0.0, 'empty', -1], ['O', 0.0, 'empty', -1]], [['X', 0.0, 'empty', -1], ['O', 0.0, 'empty', -1]], [['X', 0.0, 'empty', -1], ['O', 0.0, 'empty', -1]]
 ]
 
 #########################
 #### BASIC FUNCTIONS ####
 #########################
 
-# Print board
+# Print board probabilities
 def print_board(board):
     print("Current board:\n" +
         board[0][0][0] + ": " + str(board[0][0][1]) + ", " + board[0][1][0] + ": " + str(board[0][1][1])
@@ -41,52 +44,87 @@ def print_board(board):
     )
     return True
 
+# Print board dice
+def print_dice(board):
+    return True
+
+## TEST
+print_board(mainBoard)
+######
+
 # Places a die of a given colour on the board
+# Remember, squarei = [[X, probX, colour, die number], [O, probO, colour, die number]]
 def place_die(board, colour, square, prob):
+    assert isinstance(colour, str) # Ensure that colour is a string and not an array (as previously)
     if prob != 0.0 and prob != 0.25 and prob!= 0.5 and prob != 1.0:
-        print("Error: Probability " + str(prob) + " not allowed.")
+        print("Error: Probability " + str(prob) + " not allowed")
         return False
+    dieNum = -1
     for i in range(1,5):
-        if colour[i][0] == -1:
-            colour[i][0] = square  # Update die placement
-            colour[i][1] = prob     # Update die orientation
+        if dice[colour][i][0] == -1:
+            dieNum = i
+            dice[colour][i][0] = square  # Update die placement
+            dice[colour][i][1] = prob     # Update die orientation
             break
     else: # Break was never reached
-        print("Error: Out of dice.")
+        print("Error: Out of " + colour + "-coloured dice")
         return False
-    if colour[0] == 'X':
+    if dice[colour][0] == 'X':
         board[square][0][1] = prob  # Update X-value
-    elif colour[0] == 'O':
+        board[square][0][2] = colour # Update X-die colour
+        board[square][0][3] = dieNum # Update X-die number
+    elif dice[colour][0] == 'O':
         board[square][1][1] = prob  # Update O-value
+        board[square][1][2] = colour # Update O-die colour
+        board[square][1][3] = dieNum # Update O-die number
     else:
-        print("Error: Invalid die.")
+        print("Error: Invalid die")
         return False
-    print("Placed " + colour[0] + " on square " + str(square) + " with probability " + str(prob) + ".")
+    print("Placed " + colour + " die " + str(dieNum) + " (" + dice[colour][0] + ") on square " + str(square) + " with probability " + str(prob))
     return True
+
+## TEST
+print()
+#place_die(mainBoard, 'orange', 1, 1.0)
+place_die(mainBoard, 'orange', 2, 1.0)
+#place_die(mainBoard, 'orange', 3, 1.0)
+#place_die(mainBoard, 'orange', 4, 1.0)
+#place_die(mainBoard, 'orange', 5, 1.0)
+print()
+print_board(mainBoard)
+######
 
 # Checks if a colour is available
 def isColourFree(colour):
+    assert isinstance(colour, str) # Ensure that colour is a string and not an array (as previously)
     for i in range(1,5):
-        if colour[i][0] != -1: 
-            print("Error: Colour already placed.")
+        if dice[colour][i][0] != -1: 
+            print("Error: Colour already placed")
             return False
     return True
 
+## TEST
+print(isColourFree('orange'))
+######
+
 # Halves the probability of a die of a given colour and updates the board
-def halveProb(board, die, value):
+# Remember: die = [position, probability]
+#def halveProb(board, die, value):
+def halveProb(board, colour, dieNum, value):
+    assert isinstance(colour, str) # Ensure that colour is a string and not an array (as previously)
     if value != 'X' and value != 'O':
-        print("Error: Invalid value.")
+        print("Error: Invalid value")
         return False
-    square = die[0]
+    square = dice[colour][dieNum][0]
     if square == -1:
-        print("Error: Die is not on board.")
+        print("Error: Die is not on board")
         return False
-    die[1] = die[1] / 2 # Halves probability of die
+    dice[colour][dieNum][1] = dice[colour][dieNum][1] / 2 # Halves probability of die
     if value == 'X':
         board[square][0][1] = board[square][0][1] / 2 # Updates X value of square
     if value == 'O':
         board[square][1][1] = board[square][1][1] / 2 # Updates O value of square
-    print("Halved probability of " + value + " on square " + str(square) + ".")
+    print("Halved probability of " + colour + " die " + str(dieNum) + " (" + value + ") on square " + str(square))
     return True
 
 ###############
@@ -94,17 +132,28 @@ def halveProb(board, die, value):
 ###############
 
 # Performs a classical move
-def classic_move(board, die, square):
+def classic_move(board, colour, square):
+    assert isinstance(colour, str) # Ensure that colour is a string and not an array (as previously)
     if board[square][0][1] != 0.0 or board[square][1][1] != 0.0:
-        print("Error: The square must be empty for a classical move.")
+        print("Error: The square must be empty for a classical move")
         return False
-    if isColourFree(die):
-        return place_die(board, die, square, 1.0)
+    if isColourFree(colour):
+        return place_die(board, colour, square, 1.0)
+
+## TEST
+print()
+classic_move(mainBoard, 'green', 8)
+print()
+print_board(mainBoard)
+print()
+print(dice['green'])
+######
 
 # Performs a superposition move
-def superpos_move(board, die, square1, square2):
+def superpos_move(board, colour, square1, square2):
+    assert isinstance(colour, str) # Ensure that colour is a string and not an array (as previously)
     if square1 == square2:
-        print("Error: Please choose two squares for the superposition move.")
+        print("Error: Please choose two squares for the superposition move")
         return False
     x1 = board[square1][0][1]
     o1 = board[square1][1][1]
@@ -112,70 +161,85 @@ def superpos_move(board, die, square1, square2):
     o2 = board[square2][1][1]
     #if (x1 != 0.0 or o1 != 0.0) or (o2 != 0.0 or o2 != 0.0):
     if not x1 == o1 == x2 == o2 == 0.0:
-        print("Error: Both squares must be empty for a superposition move.")
+        print("Error: Both squares must be empty for a superposition move")
         return False
-    if isColourFree(die):
-        return place_die(board, die, square1, 0.5) and place_die(board, die, square2, 0.5)
+    if isColourFree(colour):
+        return place_die(board, colour, square1, 0.5) and place_die(board, colour, square2, 0.5)
+
+## TEST
+print()
+superpos_move(mainBoard, 'blank', 6, 7)
+print()
+print_board(mainBoard)
+print()
+print(dice['blank'])
+######
 
 # Performs an entanglement move
-def entang_move(board, die, square1, square2):
+# Game board: [square0, ..., square8], with squarei = [[X, probX, colour, die number], [O, probO, colour, die number]]
+def entang_move(board, colour, square1, square2):
+    assert isinstance(colour, str) # Ensure that colour is a string and not an array (as previously)
     if square1 == square2:
-        print("Error: Please choose two squares for the entanglement move.")
+        print("Error: Please choose two squares for the entanglement move")
         return False
     x1 = board[square1][0][1]
     o1 = board[square1][1][1]
     x2 = board[square2][0][1]
     o2 = board[square2][1][1]
+    value = dice[colour][0]
     if x1 != 0.0 or o1 != 0.0:
         if x2 != 0.0 or o2 != 0.0:
-            print("Error: One square must be empty for the entanglement move.")
+            print("Error: One square must be empty for the entanglement move")
             return False
-    if isColourFree(die):
-        if die[0] == 'X':
+    if isColourFree(colour):
+        if value == 'X':
             if x1 != 0.0 or x2 != 0.0:
-                print("Error: X can't entangle with X.")
+                print("Error: X can't entangle with X")
                 return False
             if o1 == o2 == 0.0:
-                print("Error: One square must have an O to entangle with X.")
+                print("Error: One square must have an O to entangle with X")
                 return False
-            if o1 != 0.0:
-                for colour in oColours: # Searches for the relevant die
-                    for j in range(1,5):
-                        if dice[colour][j][0] == square1:
-                            halveProb(board, dice[colour][j], 'O') # Halves probability of present die
-                            place_die(board, dice[colour], square2, o1/2) # Places a new die of the same colour
-            elif o2 != 0.0:
-                for colour in xColours: # Searches for the relevant die
-                    for j in range(1,5):
-                        if dice[colour][j][0] == square2:
-                            halveProb(board, dice[colour][j], 'O') # Halves probability of present die
-                            place_die(board, dice[colour], square1, o2/2) # Places a new die of the same colour
-            else:
-                print("Error: Unknown error.")
+            if o1 != 0.0: # square1 contains O-die
+                oColour = board[square1][1][2]
+                oDieNum = board[square1][1][3]
+                halveProb(board, oColour, oDieNum, 'O') # Halves probability of O-die in square1
+                place_die(board, oColour, square2, o1/2) # Places a new die of the same colour and probability in square2
+            elif o2 != 0.0: # square2 contains O-die
+                oColour = board[square2][1][2]
+                oDieNum = board[square2][1][3]
+                halveProb(board, oColour, oDieNum, 'O') # Halves probability of O-die in square2
+                place_die(board, oColour, square1, o2/2) # Places a new die of the same colour and probability in square1
+            else: # Can hopefully never be reached
+                print("Error: Unknown error 1")
                 return False
-        if die[0] == 'O':
+        if value == 'O':
             if o1 != 0.0 or o2 != 0.0:
-                print("Error: O can't entangle with O.")
+                print("Error: O can't entangle with O")
                 return False
             if x1 == x2 == 0.0:
-                print("Error: One square must have an X to entangle with O.")
+                print("Error: One square must have an X to entangle with O")
                 return False
-            if x1 != 0.0:
-                for colour in xColours: # Searches for the relevant die
-                    for j in range(1,5):
-                        if dice[colour][j][0] == square1:
-                            halveProb(board, dice[colour][j], 'X') # Halves probability of present die
-                            place_die(board, dice[colour], square2, dice[colour][j][1]) # Places a new die of the same colour
-            elif x2 != 0.0:
-                for colour in oColours: # Searches for the relevant die
-                    for j in range(1,5):
-                        if dice[colour][j][0] == square2:
-                            halveProb(board, dice[colour][j], 'X') # Halves probability of present die
-                            place_die(board, dice[colour], square1, o2/2) # Places a new die of the same colour
-            else:
-                print("Error: Unknown error.")
+            if x1 != 0.0: # square1 contains X-die
+                xColour = board[square1][0][2]
+                xDieNum = board[square1][0][3]
+                halveProb(board, xColour, xDieNum, 'X') # Halves probability of X-die in square1
+                place_die(board, xColour, square2, x1/2) # Places a new die of the same colour and probability in square2
+            elif x2 != 0.0: # square2 contains X-die
+                xColour = board[square2][0][2]
+                xDieNum = board[square2][0][3]
+                halveProb(board, xColour, xDieNum, 'X') # Halves probability of X-die in square2
+                place_die(board, xColour, square1, x2/2) # Places a new die of the same colour and probability in square1
+            else: # Can hopefully never be reached
+                print("Error: Unknown error 2")
                 return False
-        return place_die(board, die, square1, 0.5) and place_die(board, die, square2, 0.5)
+        # Finally, place your dice:
+        return place_die(board, colour, square1, 0.5) and place_die(board, colour, square2, 0.5)
+
+## TEST
+print()
+entang_move(mainBoard, 'turq', 2, 5)
+print()
+print_board(mainBoard)
 
 #############################
 #### MEASURING THE BOARD ####
@@ -352,29 +416,29 @@ testBoard = [
     [['X',0.0], ['O',0.0]], [['X',0.0], ['O',0.0]], [['X',0.0], ['O',0.0]]
 ]
 
-print_board(testBoard)
-print()
-classic_move(testBoard, dice['blue'], 1)
-print()
-print_board(testBoard)
-print()
-entang_move(testBoard, dice['yellow'], 1, 2)
-print()
-print_board(testBoard)
-print()
-superpos_move(testBoard, dice['green'], 3, 4)
-print()
-print_board(testBoard)
-print()
-entang_move(testBoard, dice['orange'], 4, 5)
-print()
-print_board(testBoard)
-print()
-measureColour(testBoard, dice['orange'])
-print(dice['orange'])
-print(dice['green'])
-print_board(testBoard)
-print()
-measureColour(testBoard, dice['green'])
-print()
-print_board(testBoard)
+#print_board(testBoard)
+#print()
+#classic_move(testBoard, dice['blue'], 1)
+#print()
+#print_board(testBoard)
+#print()
+#entang_move(testBoard, dice['yellow'], 1, 2)
+#print()
+#print_board(testBoard)
+#print()
+#superpos_move(testBoard, dice['green'], 3, 4)
+#print()
+#print_board(testBoard)
+#print()
+#entang_move(testBoard, dice['orange'], 4, 5)
+#print()
+#print_board(testBoard)
+#print()
+#measureColour(testBoard, dice['orange'])
+#print(dice['orange'])
+#print(dice['green'])
+#print_board(testBoard)
+#print()
+#measureColour(testBoard, dice['green'])
+#print()
+#print_board(testBoard)
