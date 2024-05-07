@@ -1,10 +1,10 @@
 import random
 
-# Dictionary of dice: Contains colours = [value, dice1, dice2, dice3, dice4]
 xColours = {'green', 'turq', 'blue', 'purple', 'sparkle'}
 oColours = {'yellow', 'orange', 'grey', 'blank'}
 allColours = {'green', 'turq', 'blue', 'purple', 'sparkle', 'yellow', 'orange', 'grey', 'blank'}
 
+# Dictionary of dice: Contains colours = [value, dice1, dice2, dice3, dice4]
 # Initialize dice = dictionary of colours, each with four dice, each die = [position, probability]
 # (where position = -1 means not placed on board).
 dice = {'green': [], 'turq': [], 'blue': [], 'purple': [], 'sparkle': [],
@@ -248,29 +248,30 @@ def rolld4():
     return random.randint(1,4)
 
 # WIP!!
-def measureColour(board, colour):
-    # colour = [value, dice1, dice2, dice3, dice4], with dice = [position, probability]
-    # board: [square0, ..., square8], with squarei = [[X, probX], [O, probO]]
-    value = colour[0]
+def measure_colour(board, colour):
+    # Dictionary "dice" contains colours = [value, die1, die2, die3, die4], each die = [position, probability]
+    # board: [square0, ..., square8], with squarei = [[X, probX, colour, die number], [O, probO, colour, die number]]
+    assert isinstance(colour, str) # Ensure that colour is a string and not an array (as previously)
+    value = dice[colour][0]
     onBoard = [] # Dice of colour currently on board
     squares = [] # Squares on board with dice of colour
     for i in range(1,4):
-        if colour[i][0] != -1:
+        if dice[colour][i][0] != -1:
             onBoard.append(i)
-            squares.append(colour[i][0])
+            squares.append(dice[colour][i][0])
     totalProb = 0.0
     for i in onBoard:
         totalProb += colour[i][1]
     if totalProb != 1.0:
-        print("Error: Total probability is " + str(totalProb) + ".")
+        print("Error: Total probability is " + str(totalProb) + " =/= 1.")
         return False
     # make a list of four equal-probability outcomes
     possibilities = []
     for i in onBoard:
-        for j in range(0,int(4.0*colour[i][1])):
-            possibilities.append([i,colour[i][0]])
+        for j in range(0,int(4*dice[colour][i][1])):
+            possibilities.append([i,dice[colour][i][0]])
     if len(possibilities) != 4:
-        print("Error: Number of possibilities not equal to 4.")
+        print("Error: Number of possibilities =/= 4.")
         return False
     roll = rolld4()
     measuredDie = possibilities[roll - 1][0]
@@ -278,11 +279,12 @@ def measureColour(board, colour):
     # Update colour:
     for die in onBoard:
         if die == measuredDie: # Give prob 1
-            colour[die][1] = 1.0
+            dice[colour][die][1] = 1.0
         else: # Take die off board
-            colour[die] = [-1, 0.0]
+            dice[colour][die] = [-1, 0.0]
     # Update board:
     # This thing feels like it could and should be simplified...
+    # STOPPED HERE LAST 12024-05-08
         for square in squares:
             if square == measuredSquare:
                 if value == 'X':
@@ -325,6 +327,8 @@ def measureColour(board, colour):
     print("Measured value " + str(value) + " in square " + str(measuredSquare) + ".")
     return True
 
+## TEST
+measure_colour(mainBoard,'turq')
 
 def measureBoard(board):
     return True
