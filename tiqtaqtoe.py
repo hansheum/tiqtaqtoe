@@ -80,7 +80,7 @@ def place_die(board, colour, square, prob):
     else:
         print("Error: Invalid die")
         return False
-    print("Placed " + colour + " die " + str(dieNum) + " (" + dice[colour][0] + ") on square " + str(square) + " with probability " + str(prob))
+    print("Placed " + colour + " " + dice[colour][0] + " die no." + str(dieNum) + " on square " + str(square) + " with probability " + str(prob))
     return True
 
 ## TEST
@@ -124,7 +124,7 @@ def halveProb(board, colour, dieNum, value):
         board[square][0][1] = board[square][0][1] / 2 # Updates X value of square
     if value == 'O':
         board[square][1][1] = board[square][1][1] / 2 # Updates O value of square
-    print("Halved probability of " + colour + " die " + str(dieNum) + " (" + value + ") on square " + str(square))
+    print("Halved probability of " + colour + " " + value + " die no." + str(dieNum) + " on square " + str(square))
     return True
 
 ###############
@@ -146,6 +146,7 @@ classic_move(mainBoard, 'green', 8)
 print()
 print_board(mainBoard)
 print()
+print("Green dice: ")
 print(dice['green'])
 ######
 
@@ -168,10 +169,12 @@ def superpos_move(board, colour, square1, square2):
 
 ## TEST
 print()
+print("The results of a superposition move:")
 superpos_move(mainBoard, 'blank', 6, 7)
 print()
 print_board(mainBoard)
 print()
+print("Blank dice: ")
 print(dice['blank'])
 ######
 
@@ -237,6 +240,7 @@ def entang_move(board, colour, square1, square2):
 
 ## TEST
 print()
+print("The results of an entanglement move:")
 entang_move(mainBoard, 'turq', 2, 5)
 print()
 print_board(mainBoard)
@@ -262,7 +266,7 @@ def measure_colour(board, colour):
     totalProb = 0.0
     # check for unitarity
     for i in onBoard:
-        totalProb += colour[i][1]
+        totalProb += dice[colour][i][1]
     if totalProb != 1.0:
         print("Error: Total probability is " + str(totalProb) + " =/= 1.")
         return False
@@ -284,52 +288,51 @@ def measure_colour(board, colour):
         else: # Take die off board
             dice[colour][die] = [-1, 0.0]
     # Update board:
-    # This thing feels like it could and should be simplified...
-        for square in squares:
-            if square == measuredSquare:
-                if value == 'X':
-                    board[square][0][1] = 1.0
-                    if board[square][1][1] != 0.0:
-                        # Remove die of opposite value:
-                        for ocolour in oColours: # Find the affected die
-                            for j in range(1,5):
-                                if dice[ocolour][j][0] == square:
-                                    dice[ocolour][j] = [-1, 0.0] # Take die off board
-                        board[square][1][1] = 0.0
-                if value == 'O':
-                    board[square][1][1] = 1.0
-                    if board[square][0][1] != 0.0:
-                        # Remove die of opposite value:
-                        for xcolour in xColours: # Searches for the affected die
-                            for j in range(1,5):
-                                if dice[xcolour][j][0] == square:
-                                    dice[xcolour][j] = [-1, 0.0] # Take die off board
-                        board[square][0][1] = 0.0
-            elif square != measuredSquare:
-                if value == 'X':
-                    board[square][0][1] = 0.0
-                    if board[square][1][1] != 0.0:
-                        # Double prob of die of opposite value:
-                        for ocolour in oColours: # Find the affected die
-                            for j in range(1,5):
-                                if dice[ocolour][j][0] == square:
-                                    dice[ocolour][j][1] = 2*dice[ocolour][j][1] # Double prob
-                        board[square][1][1] = 2*board[square][1][1] # Double prob
-                if value == 'O':
-                    board[square][1][1] = 0.0
-                    if board[square][0][1] != 0.0:
-                        # Double prob of die of opposite value:
-                        for xcolour in xColours: # Find the affected die
-                            for j in range(1,5):
-                                if dice[xcolour][j][0] == square:
-                                    dice[xcolour][j][1] = 2*dice[xcolour][j][1] # Double prob
-                        board[square][0][1] = 2*board[square][0][1] # Double prob
-    print("Measured value " + str(value) + " in square " + str(measuredSquare) + ".")
+    for square in squares:
+        if square == measuredSquare:
+            if value == 'X':
+                board[square][0][1] = 1.0
+                if board[square][1][1] != 0.0:
+                    # Remove die of opposite value:
+                    removeColour = board[square][1][2]
+                    removeDie = board[square][1][3]
+                    dice[removeColour][removeDie] = [-1, 0.0] # Take affected die off board
+                    board[square][1][1] = 0.0 # Make square void of die
+            if value == 'O':
+                board[square][1][1] = 1.0
+                if board[square][0][1] != 0.0:
+                    # Remove die of opposite value:
+                    removeColour = board[square][0][2]
+                    removeDie = board[square][0][3]
+                    dice[removeColour][removeDie] = [-1, 0.0] # Take affected die off board
+                    board[square][0][1] = 0.0 # Make square void of die
+        elif square != measuredSquare:
+            if value == 'X':
+                board[square][0][1] = 0.0 # Make square void of non-measured die
+                if board[square][1][1] != 0.0:
+                    # Double prob of die of opposite value:
+                    doubleColour = board[square][1][2]
+                    doubleDie = board[square][1][3]
+                    dice[doubleColour][doubleDie][1] = 2*dice[doubleColour][doubleDie][1] # Double prob of die
+                    board[square][1][1] = 2*board[square][1][1] # Double prob on square
+            if value == 'O':
+                board[square][1][1] = 0.0
+                if board[square][0][1] != 0.0:
+                    # Double prob of die of opposite value:
+                    doubleColour = board[square][0][2]
+                    doubleDie = board[square][0][3]
+                    dice[doubleColour][doubleDie][1] = 2*dice[doubleColour][doubleDie][1] # Double prob of die
+                    board[square][0][1] = 2*board[square][0][1] # Double prob
+    print(colour + " " + str(value) + " die observed in square " + str(measuredSquare))
     return True
 
 ## TEST
+print()
 measure_colour(mainBoard,'turq')
+print()
+print_board(mainBoard)
 
+# CONTINUE HERE
 def measureBoard(board):
     return True
 
