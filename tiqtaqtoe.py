@@ -260,6 +260,7 @@ def measure_colour(board, colour):
             onBoard.append(i)
             squares.append(dice[colour][i][0])
     totalProb = 0.0
+    # check for unitarity
     for i in onBoard:
         totalProb += colour[i][1]
     if totalProb != 1.0:
@@ -284,7 +285,6 @@ def measure_colour(board, colour):
             dice[colour][die] = [-1, 0.0]
     # Update board:
     # This thing feels like it could and should be simplified...
-    # STOPPED HERE LAST 12024-05-08
         for square in squares:
             if square == measuredSquare:
                 if value == 'X':
