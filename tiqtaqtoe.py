@@ -49,7 +49,7 @@ def print_dice(board):
     return True
 
 ## TEST
-print_board(mainBoard)
+#print_board(mainBoard)
 ######
 
 # Places a die of a given colour on the board
@@ -84,14 +84,14 @@ def place_die(board, colour, square, prob):
     return True
 
 ## TEST
-print()
-#place_die(mainBoard, 'orange', 1, 1.0)
-place_die(mainBoard, 'orange', 2, 1.0)
-#place_die(mainBoard, 'orange', 3, 1.0)
-#place_die(mainBoard, 'orange', 4, 1.0)
-#place_die(mainBoard, 'orange', 5, 1.0)
-print()
-print_board(mainBoard)
+#print()
+##place_die(mainBoard, 'orange', 1, 1.0)
+#place_die(mainBoard, 'orange', 2, 1.0)
+##place_die(mainBoard, 'orange', 3, 1.0)
+##place_die(mainBoard, 'orange', 4, 1.0)
+##place_die(mainBoard, 'orange', 5, 1.0)
+#print()
+#print_board(mainBoard)
 ######
 
 # Checks if a colour is available
@@ -104,7 +104,7 @@ def isColourFree(colour):
     return True
 
 ## TEST
-print(isColourFree('orange'))
+#print(isColourFree('orange'))
 ######
 
 # Halves the probability of a die of a given colour and updates the board
@@ -141,13 +141,13 @@ def classic_move(board, colour, square):
         return place_die(board, colour, square, 1.0)
 
 ## TEST
-print()
-classic_move(mainBoard, 'green', 8)
-print()
-print_board(mainBoard)
-print()
-print("Green dice: ")
-print(dice['green'])
+#print()
+#classic_move(mainBoard, 'green', 8)
+#print()
+#print_board(mainBoard)
+#print()
+#print("Green dice: ")
+#print(dice['green'])
 ######
 
 # Performs a superposition move
@@ -168,14 +168,14 @@ def superpos_move(board, colour, square1, square2):
         return place_die(board, colour, square1, 0.5) and place_die(board, colour, square2, 0.5)
 
 ## TEST
-print()
-print("The results of a superposition move:")
-superpos_move(mainBoard, 'blank', 6, 7)
-print()
-print_board(mainBoard)
-print()
-print("Blank dice: ")
-print(dice['blank'])
+#print()
+#print("The results of a superposition move:")
+#superpos_move(mainBoard, 'blank', 6, 7)
+#print()
+#print_board(mainBoard)
+#print()
+#print("Blank dice: ")
+#print(dice['blank'])
 ######
 
 # Performs an entanglement move
@@ -239,11 +239,11 @@ def entang_move(board, colour, square1, square2):
         return place_die(board, colour, square1, 0.5) and place_die(board, colour, square2, 0.5)
 
 ## TEST
-print()
-print("The results of an entanglement move:")
-entang_move(mainBoard, 'turq', 2, 5)
-print()
-print_board(mainBoard)
+#print()
+#print("The results of an entanglement move:")
+#entang_move(mainBoard, 'turq', 2, 5)
+#print()
+#print_board(mainBoard)
 
 #############################
 #### MEASURING THE BOARD ####
@@ -251,7 +251,6 @@ print_board(mainBoard)
 def rolld4():
     return random.randint(1,4)
 
-# WIP!!
 def measure_colour(board, colour):
     # Dictionary "dice" contains colours = [value, die1, die2, die3, die4], each die = [position, probability]
     # board: [square0, ..., square8], with squarei = [[X, probX, colour, die number], [O, probO, colour, die number]]
@@ -327,21 +326,44 @@ def measure_colour(board, colour):
     return True
 
 ## TEST
-print()
-measure_colour(mainBoard,'turq')
-print()
-print_board(mainBoard)
+#print()
+#measure_colour(mainBoard,'turq')
+#print()
+#print_board(mainBoard)
 
 # CONTINUE HERE
+# board: [square0, ..., square8], with squarei = [[X, probX, colour, die number], [O, probO, colour, die number]]
 def measureBoard(board):
+    boardColours = []
+    for square in range(9):
+        xColour = board[square][0][2]
+        if xColour not in boardColours and xColour != 'empty':
+            boardColours.append(xColour)
+        oColour = board[square][1][2]
+        if oColour not in boardColours and oColour != 'empty':
+            boardColours.append(oColour)
+    for colour in boardColours:
+        measure_colour(board, colour)
     return True
+
+## TEST
+#print()
+#print("One more entanglement move:")
+#entang_move(mainBoard, 'yellow', 4, 8)
+#print()
+#print_board(mainBoard)
+#print()
+#print("Measuring the board:")
+#measureBoard(mainBoard)
+#print()
+#print_board(mainBoard)
 
 ##########################
 #### RATING THE BOARD ####
 ##########################
 
 # Checks if X currently has a winning position
-def CanXWin(board):
+def canXWin(board):
     # Top three horizontal
     if board[0][0][1] == board[1][0][1] == board[2][0][1] == 1.0:
         return True
@@ -369,7 +391,7 @@ def CanXWin(board):
     return False
 
 # Checks if O currently has a winning position
-def CanOWin(board):
+def canOWin(board):
     # Top three horizontal
     if board[0][1][1] == board[1][1][1] == board[2][1][1] == 1.0:
         return True
@@ -397,55 +419,65 @@ def CanOWin(board):
     return False
 
 # Checks the board to see if anyone won or if it's a draw
+# To-do: Add fourth option "continue" if there are empty squares left?
 def check_board(board):
-    if CanXWin(board):
-        if CanOWin(board):
+    if canXWin(board):
+        if canOWin(board):
             print("Draw!")
             return True
         else:
             print("X won!")
             return True
-    elif CanOWin(board):
+    elif canOWin(board):
         print("O won!")
         return True
     else:
         print("Draw!")
         return True
+## TEST
+#print()
+#print("Checking the board:")
+#check_board(mainBoard)
+#print()
 
-
-#######################
-#### Testing/Debug ####
-#######################
-
-testBoard = [
-    [['X',1.0], ['O',0.0]], [['X',0.0], ['O',0.0]], [['X',0.0], ['O',0.0]],
-    [['X',0.0], ['O',0.0]], [['X',0.0], ['O',0.0]], [['X',0.0], ['O',0.0]],
-    [['X',0.0], ['O',0.0]], [['X',0.0], ['O',0.0]], [['X',0.0], ['O',0.0]]
-]
-
-#print_board(testBoard)
-#print()
-#classic_move(testBoard, dice['blue'], 1)
-#print()
-#print_board(testBoard)
-#print()
-#entang_move(testBoard, dice['yellow'], 1, 2)
-#print()
-#print_board(testBoard)
-#print()
-#superpos_move(testBoard, dice['green'], 3, 4)
-#print()
-#print_board(testBoard)
-#print()
-#entang_move(testBoard, dice['orange'], 4, 5)
-#print()
-#print_board(testBoard)
-#print()
-#measureColour(testBoard, dice['orange'])
-#print(dice['orange'])
-#print(dice['green'])
-#print_board(testBoard)
-#print()
-#measureColour(testBoard, dice['green'])
-#print()
-#print_board(testBoard)
+## PLAY THE GAME
+print("\nWelcome to TiqTaqToe!")
+print("\n1: Print board")
+print("2: Make classical move")
+print("3: Make superposition move")
+print("4: Make entanglement move")
+print("5: Measure colour")
+print("6: Measure board")
+print("0: Repeat options")
+print("q: Quit")
+print()
+print_board(mainBoard)
+while(True):
+    action = input("\nWhat would you like to do? (0: See options, q: Quit) ")
+    if action == "1":
+        print()
+        print_board(mainBoard)
+    elif action == "2":
+        continue
+    elif action == "3":
+        continue
+    elif action == "4":
+        continue
+    elif action == "5":
+        continue
+    elif action == "6":
+        continue
+    elif action == "0":
+        print("\n1: Print board")
+        print("2: Make classical move")
+        print("3: Make superposition move")
+        print("4: Make entanglement move")
+        print("5: Measure colour")
+        print("6: Measure board")
+        print("0: Repeat options")
+        print("q: Quit")
+    elif action == "q" or action == "Q":
+        print("\nBye!")
+        break
+    else:
+        print("\nError: Invalid input")
