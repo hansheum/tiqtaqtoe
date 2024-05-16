@@ -27,31 +27,10 @@ mainBoard = [
 #### BASIC FUNCTIONS ####
 #########################
 
-# Print board probabilities
-def print_board_prob(board):
-    print("Current board:\n" +
-        board[0][0][0] + ": " + str(board[0][0][1]) + ", " + board[0][1][0] + ": " + str(board[0][1][1])
-          + " | " + board[1][0][0] + ": " + str(board[1][0][1]) + ", " + board[1][1][0] + ": " + str(board[1][1][1])
-          + " | " + board[2][0][0] + ": " + str(board[2][0][1]) + ", " + board[2][1][0] + ": " + str(board[2][1][1])
-        + "\n-------------------------------------------------\n" +
-        board[3][0][0] + ": " + str(board[3][0][1]) + ", " + board[3][1][0] + ": " + str(board[3][1][1])
-          + " | " + board[4][0][0] + ": " + str(board[4][0][1]) + ", " + board[4][1][0] + ": " + str(board[4][1][1])
-          + " | " + board[5][0][0] + ": " + str(board[5][0][1]) + ", " + board[5][1][0] + ": " + str(board[5][1][1])
-        + "\n-------------------------------------------------\n" +
-        board[6][0][0] + ": " + str(board[6][0][1]) + ", " + board[6][1][0] + ": " + str(board[6][1][1])
-          + " | " + board[7][0][0] + ": " + str(board[7][0][1]) + ", " + board[7][1][0] + ": " + str(board[7][1][1])
-          + " | " + board[8][0][0] + ": " + str(board[8][0][1]) + ", " + board[8][1][0] + ": " + str(board[8][1][1])
-    )
-    return True
-
-# Print board dice
-def print_dice(board):
-    return True
-
 # Print board colours and probabilities
 # Game board: [square0, ..., square8], with squarei = [[X, probX, colour, die number], [O, probO, colour, die number]]
 def print_board(board):
-    print("Current board:\n" +
+    print("\nCurrent board:\n" +
         board[0][0][0] + ": " + str(board[0][0][1]) + " (" + board[0][0][2] + ")" # 0X
           + " | " + board[1][0][0] + ": " + str(board[1][0][1]) + " (" + board[1][0][2] + ")" # 1X
           + " | " + board[2][0][0] + ": " + str(board[2][0][1]) + " (" + board[2][0][2] + ")" # 2X 
@@ -78,16 +57,12 @@ def print_board(board):
     )
     return True
 
-## TEST
-#print_board(mainBoard)
-######
-
 # Places a die of a given colour on the board
 # Remember, squarei = [[X, probX, colour, die number], [O, probO, colour, die number]]
 def place_die(board, colour, square, prob):
     assert isinstance(colour, str) # Ensure that colour is a string and not an array (as previously)
     if prob != 0.0 and prob != 0.25 and prob!= 0.5 and prob != 1.0:
-        print("Error: Probability " + str(prob) + " not allowed")
+        print("\nError: Probability " + str(prob) + " not allowed")
         return False
     dieNum = -1
     for i in range(1,5):
@@ -97,7 +72,7 @@ def place_die(board, colour, square, prob):
             dice[colour][i][1] = prob     # Update die orientation
             break
     else: # Break was never reached
-        print("Error: Out of " + colour + "-coloured dice")
+        print("\nError: Out of " + colour + "-coloured dice")
         return False
     if dice[colour][0] == 'X':
         board[square][0][1] = prob  # Update X-value
@@ -108,53 +83,39 @@ def place_die(board, colour, square, prob):
         board[square][1][2] = colour # Update O-die colour
         board[square][1][3] = dieNum # Update O-die number
     else:
-        print("Error: Invalid die")
+        print("\nError: Invalid die")
         return False
-    print("Placed " + colour + " " + dice[colour][0] + " die no." + str(dieNum) + " on square " + str(square) + " with probability " + str(prob))
+    print("\nPlaced " + dice[colour][0] + " die " + colour + " no." + str(dieNum)
+          + " on square " + str(square+1) + "\n\twith squared-amplitude " + str(prob))
     return True
-
-## TEST
-#print()
-##place_die(mainBoard, 'ornge', 1, 1.0)
-#place_die(mainBoard, 'ornge', 2, 1.0)
-##place_die(mainBoard, 'ornge', 3, 1.0)
-##place_die(mainBoard, 'ornge', 4, 1.0)
-##place_die(mainBoard, 'ornge', 5, 1.0)
-#print()
-#print_board(mainBoard)
-######
 
 # Checks if a colour is available
 def isColourFree(colour):
     assert isinstance(colour, str) # Ensure that colour is a string and not an array (as previously)
     for i in range(1,5):
         if dice[colour][i][0] != -1: 
-            print("Error: Colour already placed")
+            print("\nError: Colour already placed")
             return False
     return True
 
-## TEST
-#print(isColourFree('ornge'))
-######
-
 # Halves the probability of a die of a given colour and updates the board
 # Remember: die = [position, probability]
-#def halveProb(board, die, value):
 def halveProb(board, colour, dieNum, value):
     assert isinstance(colour, str) # Ensure that colour is a string and not an array (as previously)
     if value != 'X' and value != 'O':
-        print("Error: Invalid value")
+        print("\nError: Invalid value")
         return False
     square = dice[colour][dieNum][0]
     if square == -1:
-        print("Error: Die is not on board")
+        print("\nError: Die is not on board")
         return False
     dice[colour][dieNum][1] = dice[colour][dieNum][1] / 2 # Halves probability of die
     if value == 'X':
         board[square][0][1] = board[square][0][1] / 2 # Updates X value of square
     if value == 'O':
         board[square][1][1] = board[square][1][1] / 2 # Updates O value of square
-    print("Halved probability of " + colour + " " + value + " die no." + str(dieNum) + " on square " + str(square))
+    print("\nHalved squared-amplitude of\n\t" + value + " die " + colour + " no." +
+          str(dieNum) + " on square " + str(square+1))
     return True
 
 ###############
@@ -165,20 +126,10 @@ def halveProb(board, colour, dieNum, value):
 def classic_move(board, colour, square):
     assert isinstance(colour, str) # Ensure that colour is a string and not an array (as previously)
     if board[square][0][1] != 0.0 or board[square][1][1] != 0.0:
-        print("Error: The square must be empty for a classical move")
+        print("\nError: The square must be empty for a classical move")
         return False
     if isColourFree(colour):
         return place_die(board, colour, square, 1.0)
-
-## TEST
-#print()
-#classic_move(mainBoard, 'green', 8)
-#print()
-#print_board(mainBoard)
-#print()
-#print("Green dice: ")
-#print(dice['green'])
-######
 
 # Performs a superposition move
 def superpos_move(board, colour, square1, square2):
@@ -196,17 +147,6 @@ def superpos_move(board, colour, square1, square2):
         return False
     if isColourFree(colour):
         return place_die(board, colour, square1, 0.5) and place_die(board, colour, square2, 0.5)
-
-## TEST
-#print()
-#print("The results of a superposition move:")
-#superpos_move(mainBoard, 'blank', 6, 7)
-#print()
-#print_board(mainBoard)
-#print()
-#print("Blank dice: ")
-#print(dice['blank'])
-######
 
 # Performs an entanglement move
 # Game board: [square0, ..., square8], with squarei = [[X, probX, colour, die number], [O, probO, colour, die number]]
@@ -267,13 +207,6 @@ def entang_move(board, colour, square1, square2):
                 return False
         # Finally, place your dice:
         return place_die(board, colour, square1, 0.5) and place_die(board, colour, square2, 0.5)
-
-## TEST
-#print()
-#print("The results of an entanglement move:")
-#entang_move(mainBoard, 'turqs', 2, 5)
-#print()
-#print_board(mainBoard)
 
 #############################
 #### MEASURING THE BOARD ####
@@ -354,17 +287,11 @@ def measure_colour(board, colour):
                     doubleDie = board[square][0][3]
                     dice[doubleColour][doubleDie][1] = 2*dice[doubleColour][doubleDie][1] # Double prob of die
                     board[square][0][1] = 2*board[square][0][1] # Double prob
-    print(colour + " " + str(value) + " die observed in square " + str(measuredSquare))
+    print("\n" + colour + " " + str(value) + " die observed in square " + str(measuredSquare))
     return True
 
-## TEST
-#print()
-#measure_colour(mainBoard,'turq')
-#print()
-#print_board(mainBoard)
-
 # board: [square0, ..., square8], with squarei = [[X, probX, colour, die number], [O, probO, colour, die number]]
-def measureBoard(board):
+def findBoardColours(board):
     boardColours = []
     for square in range(9):
         xColour = board[square][0][2]
@@ -373,22 +300,14 @@ def measureBoard(board):
         oColour = board[square][1][2]
         if oColour not in boardColours and oColour != 'empty':
             boardColours.append(oColour)
+    return boardColours
+
+def measureBoard(board):
+    print("\nObserving board...")
+    boardColours = findBoardColours(board)
     for colour in boardColours:
         measure_colour(board, colour)
-    print("Measured board")
     return True
-
-## TEST
-#print()
-#print("One more entanglement move:")
-#entang_move(mainBoard, 'yllow', 4, 8)
-#print()
-#print_board(mainBoard)
-#print()
-#print("Measuring the board:")
-#measureBoard(mainBoard)
-#print()
-#print_board(mainBoard)
 
 ##########################
 #### RATING THE BOARD ####
@@ -455,74 +374,104 @@ def canOWin(board):
 def check_board(board):
     if canXWin(board):
         if canOWin(board):
-            print("Draw!")
+            print("\nDraw!")
             return True
         else:
-            print("X won!")
+            print("\nX won!")
             return True
     elif canOWin(board):
-        print("O won!")
+        print("\nO won!")
         return True
     else:
-        print("Draw!")
+        print("\nDraw!")
         return True
-## TEST
-#print()
-#print("Checking the board:")
-#check_board(mainBoard)
-#print()
 
-## PLAY THE GAME
+def print_menu():
+    #print("\n1: Print board")
+    print("\n1: Make classical move")
+    print("2: Make superposition move")
+    print("3: Make entanglement move")
+    print("4: Observe colour")
+    print("5: Observe board")
+    print("6: Finalize")
+    print("0: Menu")
+    print("q: Quit")
+    return True
+
+#######################
+#### PLAY THE GAME ####
+#######################
+
 print("\nWelcome to TiqTaqToe!")
-#print()
-#print_board(mainBoard)
-#print("\n1: Print board")
-print("\n1: Make classical move")
-print("2: Make superposition move")
-print("3: Make entanglement move")
-print("4: Measure colour")
-print("5: Measure board")
-print("0: Repeat options")
-print("q: Quit")
+print_menu()
+print_board(mainBoard)
 
 while(True):
-    print()
-    print_board(mainBoard)
-    action = input("\nWhat would you like to do? (0: Repeat options, q: Quit) ")
-    #if action == "1":
-    #    print()
-    #    print_board(mainBoard)
+    action = input("\nWhat would you like to do? (0: Menu, q: Quit)\n> ")
     if action == "1":
-        colour = input("\nWhich colour? ")
+        colour = input("\nWhich colour? \n(X: green/turqs/ocean/prple/sprkl) \n(O: yllow/ornge/smoke/blank)\n> ")
         if colour not in allColours:
-            print("Error: Not a colour")
+            print("\nError: Not a colour")
             continue
-        else:
-            square = int(input("\nWhere? "))
-            if square not in range(8):
-                print("Error: Not a square")
-                continue
-            else:
-                print()
-                classic_move(mainBoard, colour, square)
+        square = int(input("\nWhere? (1-9)\n> ")) - 1
+        if square not in range(9):
+            print("\nError: Not a square")
+            continue
+        classic_move(mainBoard, colour, square)
+        print_board(mainBoard)
     elif action == "2":
-        continue
+        colour = input("\nWhich colour? \n(X: green/turqs/ocean/prple/sprkl) \n(O: yllow/ornge/smoke/blank)\n> ")
+        if colour not in allColours:
+            print("\nError: Not a colour")
+            continue
+        square1 = int(input("\nWhere? (1-9)\n> ")) - 1
+        if square1 not in range(9):
+            print("\nError: Not a square")
+            continue
+        square2 = int(input("\nWhere else? (1-9)\n> ")) - 1
+        if square2 not in range(9):
+            print("\nError: Not a square")
+            continue
+        superpos_move(mainBoard, colour, square1, square2)
+        print_board(mainBoard)
     elif action == "3":
-        continue
+        colour = input("\nWhich colour? \n(X: green/turqs/ocean/prple/sprkl) \n(O: yllow/ornge/smoke/blank)\n> ")
+        if colour not in allColours:
+            print("\nError: Not a colour")
+            continue
+        square1 = int(input("\nWhere? (1-9)\n> ")) - 1
+        if square1 not in range(9):
+            print("\nError: Not a square")
+            continue
+        square2 = int(input("\nWhere else? (1-9)\n> ")) - 1
+        if square2 not in range(9):
+            print("\nError: Not a square")
+            continue
+        entang_move(mainBoard, colour, square1, square2)
+        print_board(mainBoard)
     elif action == "4":
-        continue
+        colour = input("\nWhich colour? \n(X: green/turqs/ocean/prple/sprkl) \n(O: yllow/ornge/smoke/blank)\n> ")
+        if colour not in allColours:
+            print("\nError: Not a colour")
+            continue
+        measure_colour(mainBoard, colour)
+        print_board(mainBoard)
     elif action == "5":
-        print()
         measureBoard(mainBoard)
+        print_board(mainBoard)
+    elif action == "6":
+        measured = True
+        boardColours = findBoardColours(mainBoard)
+        for colour in allColours:
+            if colour in boardColours:
+                measured = False
+        if not measured:
+            print("\nError: Board not fully observed")
+            continue
+        check_board(mainBoard)
+        break
     elif action == "0":
-        print("\n1: Print board")
-        print("2: Make classical move")
-        print("3: Make superposition move")
-        print("4: Make entanglement move")
-        print("5: Measure colour")
-        print("6: Measure board")
-        print("0: Repeat options")
-        print("q: Quit")
+        print_menu()
     elif action == "q" or action == "Q":
         print("\nBye!")
         break
