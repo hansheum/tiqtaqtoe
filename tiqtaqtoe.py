@@ -407,6 +407,7 @@ def print_menu():
 #### CALCULATE WIN PROBABILITIES ####
 #####################################
 
+# WIP!!
 def enumerateBoards(board, colours, n):
     boards = []
     for i in range(4):
@@ -418,12 +419,13 @@ def enumerateBoards(board, colours, n):
     #print(boards)
     return boards
 
-superpos_move(mainBoard, 'turqs', 5, 6)
-superpos_move(mainBoard, 'smoke', 2, 3)
-enumerateBoards(mainBoard, ['turqs', 'smoke'], 2)
+#superpos_move(mainBoard, 'turqs', 5, 6)
+#superpos_move(mainBoard, 'smoke', 2, 3)
+#enumerateBoards(mainBoard, ['turqs', 'smoke'], 2)
 # Error: Skulle kommet to av hver mulighet per farge, men får bare fire av
 # første muligheten per farge.
 
+# WIP!!
 def calculateProbs(board):
     boardColours = findBoardColours(board)
     numberOfColours = len(boardColours)
