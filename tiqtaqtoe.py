@@ -1,4 +1,5 @@
 import random
+import copy
 
 xColours = {'green', 'turqs', 'ocean', 'prple', 'sprkl'}
 oColours = {'yllow', 'ornge', 'smoke', 'blank'}
@@ -214,10 +215,26 @@ def entang_move(board, colour, square1, square2):
 def rolld4():
     return random.randint(1,4)
 
-def measure_colour(board, colour):
+# board: [square0, ..., square8], with squarei = [[X, probX, colour, die number], [O, probO, colour, die number]]
+def findBoardColours(board):
+    boardColours = []
+    for square in range(9):
+        xColour = board[square][0][2]
+        if xColour not in boardColours and xColour != 'empty':
+            boardColours.append(xColour)
+        oColour = board[square][1][2]
+        if oColour not in boardColours and oColour != 'empty':
+            boardColours.append(oColour)
+    return boardColours
+
+def observeColour(board, colour, roll):
     # Dictionary "dice" contains colours = [value, die1, die2, die3, die4], each die = [position, probability]
     # board: [square0, ..., square8], with squarei = [[X, probX, colour, die number], [O, probO, colour, die number]]
     assert isinstance(colour, str) # Ensure that colour is a string and not an array (as previously)
+    boardColours = findBoardColours(board)
+    if colour not in boardColours:
+        print("\nError: Colour not on board")
+        return False
     value = dice[colour][0]
     onBoard = [] # Dice of colour currently on board
     squares = [] # Squares on board with dice of colour
@@ -240,7 +257,6 @@ def measure_colour(board, colour):
     if len(possibilities) != 4:
         print("Error: Number of possibilities =/= 4.")
         return False
-    roll = rolld4()
     measuredDie = possibilities[roll - 1][0]
     measuredSquare = possibilities[roll - 1][1]
     # Update colour:
@@ -290,23 +306,12 @@ def measure_colour(board, colour):
     print("\n" + colour + " " + str(value) + " die observed in square " + str(measuredSquare))
     return True
 
-# board: [square0, ..., square8], with squarei = [[X, probX, colour, die number], [O, probO, colour, die number]]
-def findBoardColours(board):
-    boardColours = []
-    for square in range(9):
-        xColour = board[square][0][2]
-        if xColour not in boardColours and xColour != 'empty':
-            boardColours.append(xColour)
-        oColour = board[square][1][2]
-        if oColour not in boardColours and oColour != 'empty':
-            boardColours.append(oColour)
-    return boardColours
-
 def measureBoard(board):
     print("\nObserving board...")
     boardColours = findBoardColours(board)
     for colour in boardColours:
-        measure_colour(board, colour)
+        roll = rolld4()
+        observeColour(board, colour, roll)
     return True
 
 ##########################
@@ -398,6 +403,66 @@ def print_menu():
     print("q: Quit")
     return True
 
+#####################################
+#### CALCULATE WIN PROBABILITIES ####
+#####################################
+
+def enumerateBoards(board, colours, n):
+    boards = []
+    for i in range(4):
+        boards.append(copy.deepcopy(board)) # Copy-issue, solution found here: 
+        #https://stackoverflow.com/questions/2612802/how-do-i-clone-a-list-so-that-it-doesnt-change-unexpectedly-after-assignment
+        observeColour(boards[i], colours[n-1], i+1)
+    if n > 1:
+        boards.append(enumerateBoards(board, colours, n-1)) # RECURSION!!
+    #print(boards)
+    return boards
+
+superpos_move(mainBoard, 'turqs', 5, 6)
+superpos_move(mainBoard, 'smoke', 2, 3)
+enumerateBoards(mainBoard, ['turqs', 'smoke'], 2)
+# Error: Skulle kommet to av hver mulighet per farge, men får bare fire av
+# første muligheten per farge.
+
+def calculateProbs(board):
+    boardColours = findBoardColours(board)
+    numberOfColours = len(boardColours)
+    enumerateBoards(board, boardColours, numberOfColours)
+    for a in range(4):
+        aboards.append(board)
+        for colour in boardColours:
+            observeColour(board, colour, roll)
+    bboards = []
+    for b in range(4):
+        bboards.append(aboards)
+    cboards = []
+    for c in range(4):
+        cboards.append(bboards)
+    dboards = []
+    for d in range(4):
+        dboards.append(cboards)
+    eboards = []
+    for e in range(4):
+        eboards.append(dboards)
+    fboards = []
+    for f in range(4):
+        fboards.append(eboards)
+    gboards = []
+    for g in range(4):
+        gboards.append(fboards)
+    hboards = []
+    for h in range(4):
+        hboards.append(gboards)
+    boards = []
+    for i in range(4):
+        boards.append(hboards)
+    #print(boards) # 2^9 = 262,144 boards
+    #boardColours = findBoardColours(board)
+    #for colour in boardColours:
+    #    observeColour(boards[1], colour, 1)
+
+#calculateProbs(mainBoard)
+
 #######################
 #### PLAY THE GAME ####
 #######################
@@ -454,7 +519,8 @@ while(True):
         if colour not in allColours:
             print("\nError: Not a colour")
             continue
-        measure_colour(mainBoard, colour)
+        roll = rolld4()
+        observeColour(mainBoard, colour, roll)
         print_board(mainBoard)
     elif action == "5":
         measureBoard(mainBoard)
