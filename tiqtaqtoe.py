@@ -8,12 +8,12 @@ allColours = {'green', 'turqs', 'ocean', 'prple', 'sprkl', 'yllow', 'ornge', 'sm
 # Dictionary of dice: Contains colours = [value, dice1, dice2, dice3, dice4]
 # Initialize dice = dictionary of colours, each with four dice, each die = [position, probability]
 # (where position = -1 means not placed on board).
-dice = {'green': [], 'turqs': [], 'ocean': [], 'prple': [], 'sprkl': [],
+mainDice = {'green': [], 'turqs': [], 'ocean': [], 'prple': [], 'sprkl': [],
         'yllow': [], 'ornge': [], 'smoke': [], 'blank': []}
 for colour in xColours:
-    dice[colour] = ['X', [-1, 0.0], [-1, 0.0], [-1, 0.0], [-1, 0.0]]
+    mainDice[colour] = ['X', [-1, 0.0], [-1, 0.0], [-1, 0.0], [-1, 0.0]]
 for colour in oColours:
-    dice[colour] = ['O', [-1, 0.0], [-1, 0.0], [-1, 0.0], [-1, 0.0]]
+    mainDice[colour] = ['O', [-1, 0.0], [-1, 0.0], [-1, 0.0], [-1, 0.0]]
 
 #print(dice)
 
@@ -60,7 +60,7 @@ def print_board(board):
 
 # Places a die of a given colour on the board
 # Remember, squarei = [[X, probX, colour, die number], [O, probO, colour, die number]]
-def place_die(board, colour, square, prob):
+def place_die(board, dice, colour, square, prob):
     assert isinstance(colour, str) # Ensure that colour is a string and not an array (as previously)
     if prob != 0.0 and prob != 0.25 and prob!= 0.5 and prob != 1.0:
         print("\nError: Probability " + str(prob) + " not allowed")
@@ -91,7 +91,7 @@ def place_die(board, colour, square, prob):
     return True
 
 # Checks if a colour is available
-def isColourFree(colour):
+def isColourFree(dice, colour):
     assert isinstance(colour, str) # Ensure that colour is a string and not an array (as previously)
     for i in range(1,5):
         if dice[colour][i][0] != -1: 
@@ -101,7 +101,7 @@ def isColourFree(colour):
 
 # Halves the probability of a die of a given colour and updates the board
 # Remember: die = [position, probability]
-def halveProb(board, colour, dieNum, value):
+def halveProb(board, dice, colour, dieNum, value):
     assert isinstance(colour, str) # Ensure that colour is a string and not an array (as previously)
     if value != 'X' and value != 'O':
         print("\nError: Invalid value")
@@ -124,16 +124,16 @@ def halveProb(board, colour, dieNum, value):
 ###############
 
 # Performs a classical move
-def classic_move(board, colour, square):
+def classic_move(board, dice, colour, square):
     assert isinstance(colour, str) # Ensure that colour is a string and not an array (as previously)
     if board[square][0][1] != 0.0 or board[square][1][1] != 0.0:
         print("\nError: The square must be empty for a classical move")
         return False
-    if isColourFree(colour):
-        return place_die(board, colour, square, 1.0)
+    if isColourFree(dice, colour):
+        return place_die(board, dice, colour, square, 1.0)
 
 # Performs a superposition move
-def superpos_move(board, colour, square1, square2):
+def superpos_move(board, dice, colour, square1, square2):
     assert isinstance(colour, str) # Ensure that colour is a string and not an array (as previously)
     if square1 == square2:
         print("Error: Please choose two squares for the superposition move")
@@ -146,12 +146,12 @@ def superpos_move(board, colour, square1, square2):
     if not x1 == o1 == x2 == o2 == 0.0:
         print("Error: Both squares must be empty for a superposition move")
         return False
-    if isColourFree(colour):
-        return place_die(board, colour, square1, 0.5) and place_die(board, colour, square2, 0.5)
+    if isColourFree(dice, colour):
+        return place_die(board, dice, colour, square1, 0.5) and place_die(board, dice, colour, square2, 0.5)
 
 # Performs an entanglement move
 # Game board: [square0, ..., square8], with squarei = [[X, probX, colour, die number], [O, probO, colour, die number]]
-def entang_move(board, colour, square1, square2):
+def entang_move(board, dice, colour, square1, square2):
     assert isinstance(colour, str) # Ensure that colour is a string and not an array (as previously)
     if square1 == square2:
         print("Error: Please choose two squares for the entanglement move")
@@ -165,7 +165,7 @@ def entang_move(board, colour, square1, square2):
         if x2 != 0.0 or o2 != 0.0:
             print("Error: One square must be empty for the entanglement move")
             return False
-    if isColourFree(colour):
+    if isColourFree(dice, colour):
         if value == 'X':
             if x1 != 0.0 or x2 != 0.0:
                 print("Error: X can't entangle with X")
@@ -176,13 +176,13 @@ def entang_move(board, colour, square1, square2):
             if o1 != 0.0: # square1 contains O-die
                 oColour = board[square1][1][2]
                 oDieNum = board[square1][1][3]
-                halveProb(board, oColour, oDieNum, 'O') # Halves probability of O-die in square1
-                place_die(board, oColour, square2, o1/2) # Places a new die of the same colour and probability in square2
+                halveProb(board, dice, oColour, oDieNum, 'O') # Halves probability of O-die in square1
+                place_die(board, dice, oColour, square2, o1/2) # Places a new die of the same colour and probability in square2
             elif o2 != 0.0: # square2 contains O-die
                 oColour = board[square2][1][2]
                 oDieNum = board[square2][1][3]
-                halveProb(board, oColour, oDieNum, 'O') # Halves probability of O-die in square2
-                place_die(board, oColour, square1, o2/2) # Places a new die of the same colour and probability in square1
+                halveProb(board, dice, oColour, oDieNum, 'O') # Halves probability of O-die in square2
+                place_die(board, dice, oColour, square1, o2/2) # Places a new die of the same colour and probability in square1
             else: # Can hopefully never be reached
                 print("Error: Unknown error 1")
                 return False
@@ -196,18 +196,18 @@ def entang_move(board, colour, square1, square2):
             if x1 != 0.0: # square1 contains X-die
                 xColour = board[square1][0][2]
                 xDieNum = board[square1][0][3]
-                halveProb(board, xColour, xDieNum, 'X') # Halves probability of X-die in square1
-                place_die(board, xColour, square2, x1/2) # Places a new die of the same colour and probability in square2
+                halveProb(board, dice, xColour, xDieNum, 'X') # Halves probability of X-die in square1
+                place_die(board, dice, xColour, square2, x1/2) # Places a new die of the same colour and probability in square2
             elif x2 != 0.0: # square2 contains X-die
                 xColour = board[square2][0][2]
                 xDieNum = board[square2][0][3]
-                halveProb(board, xColour, xDieNum, 'X') # Halves probability of X-die in square2
-                place_die(board, xColour, square1, x2/2) # Places a new die of the same colour and probability in square1
+                halveProb(board, dice, xColour, xDieNum, 'X') # Halves probability of X-die in square2
+                place_die(board, dice, xColour, square1, x2/2) # Places a new die of the same colour and probability in square1
             else: # Can hopefully never be reached
                 print("Error: Unknown error 2")
                 return False
         # Finally, place your dice:
-        return place_die(board, colour, square1, 0.5) and place_die(board, colour, square2, 0.5)
+        return place_die(board, dice, colour, square1, 0.5) and place_die(board, dice, colour, square2, 0.5)
 
 #############################
 #### MEASURING THE BOARD ####
@@ -227,13 +227,18 @@ def findBoardColours(board):
             boardColours.append(oColour)
     return boardColours
 
-def observeColour(board, colour, roll):
+def observeColour(board, dice, colour, roll):
     # Dictionary "dice" contains colours = [value, die1, die2, die3, die4], each die = [position, probability]
     # board: [square0, ..., square8], with squarei = [[X, probX, colour, die number], [O, probO, colour, die number]]
     assert isinstance(colour, str) # Ensure that colour is a string and not an array (as previously)
+    print("DEBUG observeColour: board = ")
+    print(board)
     boardColours = findBoardColours(board)
     if colour not in boardColours:
         print("\nError: Colour not on board")
+        return False
+    if roll not in range(1,5):
+        print("\nError: Roll not between 1 and 4")
         return False
     value = dice[colour][0]
     onBoard = [] # Dice of colour currently on board
@@ -247,7 +252,7 @@ def observeColour(board, colour, roll):
     for i in onBoard:
         totalProb += dice[colour][i][1]
     if totalProb != 1.0:
-        print("Error: Total probability is " + str(totalProb) + " =/= 1.")
+        print("\nError: Total probability is " + str(totalProb) + " =/= 1.")
         return False
     # make a list of four equal-probability outcomes
     possibilities = []
@@ -255,10 +260,15 @@ def observeColour(board, colour, roll):
         for j in range(0,int(4*dice[colour][i][1])):
             possibilities.append([i,dice[colour][i][0]])
     if len(possibilities) != 4:
-        print("Error: Number of possibilities =/= 4.")
+        print("\nError: Number of possibilities =/= 4.")
         return False
+    print("DEBUG observeColour: possibilities = ")
+    print(possibilities)
+    print("DEBUG observeColour: roll = " + str(roll))
     measuredDie = possibilities[roll - 1][0]
+    print("DEBUG observeColour: measuredDie = " + str(measuredDie))
     measuredSquare = possibilities[roll - 1][1]
+    print("DEBUG observeColour: measuredSquare = " + str(measuredSquare))
     # Update colour:
     for die in onBoard:
         if die == measuredDie: # Give prob 1
@@ -306,12 +316,12 @@ def observeColour(board, colour, roll):
     print("\n" + colour + " " + str(value) + " die observed in square " + str(measuredSquare))
     return True
 
-def measureBoard(board):
+def measureBoard(board, dice):
     print("\nObserving board...")
     boardColours = findBoardColours(board)
     for colour in boardColours:
         roll = rolld4()
-        observeColour(board, colour, roll)
+        observeColour(board, dice, colour, roll)
     return True
 
 ##########################
@@ -408,22 +418,35 @@ def print_menu():
 #####################################
 
 # WIP!!
-def enumerateBoards(board, colours, n):
+# list-copy-issue, solution found here: 
+#https://stackoverflow.com/questions/2612802/how-do-i-clone-a-list-so-that-it-doesnt-change-unexpectedly-after-assignment
+def enumerateBoards(board, dice, colours, n):
+    print("\nDEBUG: n = " + str(n) + ", colours = ")
+    print(colours)
     boards = []
+    diceSets = []
     for i in range(4):
-        boards.append(copy.deepcopy(board)) # Copy-issue, solution found here: 
-        #https://stackoverflow.com/questions/2612802/how-do-i-clone-a-list-so-that-it-doesnt-change-unexpectedly-after-assignment
-        observeColour(boards[i], colours[n-1], i+1)
-    if n > 1:
-        boards.append(enumerateBoards(board, colours, n-1)) # RECURSION!!
+        #print("\nDEBUG: i = " + str(i))
+        boards.append(copy.deepcopy(board)) 
+        diceSets.append(copy.deepcopy(dice)) 
+        #print("\nDEBUG: boards[i] PRE OBSERVING")
+        #print(boards[i])
+        observeColour(boards[i], dice[i], colours[n-1], i+1)
+        #print("\nDEBUG: boards[i] POST OBSERVING")
+        #print(boards[i])
+        #print("DEBUG: END")
+    #if n > 1:
+    #    boards.append(enumerateBoards(board, colours, n-1)) # RECURSION!!
     #print(boards)
     return boards
 
-#superpos_move(mainBoard, 'turqs', 5, 6)
-#superpos_move(mainBoard, 'smoke', 2, 3)
-#enumerateBoards(mainBoard, ['turqs', 'smoke'], 2)
-# Error: Skulle kommet to av hver mulighet per farge, men får bare fire av
-# første muligheten per farge.
+# superpos_move(mainBoard, mainDice, 'turqs', 5, 6)
+# superpos_move(mainBoard, mainDice, 'smoke', 2, 3)
+# #mainBoard2 = copy.deepcopy(mainBoard)
+# #observeColour(mainBoard, mainDice, 'turqs', 1)
+# #observeColour(mainBoard2, 'turqs', 3) # ??? hvorfor er possibilities ulike mellom disse to?
+# # SVAR: Fordi at de driver og redigerer på det globale dice-biblioteket... howtofix
+# enumerateBoards(mainBoard, mainDice, ['turqs', 'smoke'], 2)
 
 # WIP!!
 def calculateProbs(board):
@@ -433,7 +456,7 @@ def calculateProbs(board):
     for a in range(4):
         aboards.append(board)
         for colour in boardColours:
-            observeColour(board, colour, roll)
+            observeColour(board, dice, colour, roll)
     bboards = []
     for b in range(4):
         bboards.append(aboards)
@@ -484,7 +507,7 @@ while(True):
         if square not in range(9):
             print("\nError: Not a square")
             continue
-        classic_move(mainBoard, colour, square)
+        classic_move(mainBoard, mainDice, colour, square)
         print_board(mainBoard)
     elif action == "2":
         colour = input("\nWhich colour? \n(X: green/turqs/ocean/prple/sprkl) \n(O: yllow/ornge/smoke/blank)\n> ")
@@ -499,7 +522,7 @@ while(True):
         if square2 not in range(9):
             print("\nError: Not a square")
             continue
-        superpos_move(mainBoard, colour, square1, square2)
+        superpos_move(mainBoard, mainDice, colour, square1, square2)
         print_board(mainBoard)
     elif action == "3":
         colour = input("\nWhich colour? \n(X: green/turqs/ocean/prple/sprkl) \n(O: yllow/ornge/smoke/blank)\n> ")
@@ -514,7 +537,7 @@ while(True):
         if square2 not in range(9):
             print("\nError: Not a square")
             continue
-        entang_move(mainBoard, colour, square1, square2)
+        entang_move(mainBoard, mainDice, colour, square1, square2)
         print_board(mainBoard)
     elif action == "4":
         colour = input("\nWhich colour? \n(X: green/turqs/ocean/prple/sprkl) \n(O: yllow/ornge/smoke/blank)\n> ")
@@ -522,7 +545,7 @@ while(True):
             print("\nError: Not a colour")
             continue
         roll = rolld4()
-        observeColour(mainBoard, colour, roll)
+        observeColour(mainBoard, mainDice, colour, roll)
         print_board(mainBoard)
     elif action == "5":
         measureBoard(mainBoard)
