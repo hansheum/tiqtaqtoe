@@ -4,6 +4,7 @@ import copy
 xColours = {'green', 'turqs', 'ocean', 'prple', 'sprkl'}
 oColours = {'yllow', 'ornge', 'smoke', 'blank'}
 allColours = {'green', 'turqs', 'ocean', 'prple', 'sprkl', 'yllow', 'ornge', 'smoke', 'blank'}
+allSquares = {'1', '2', '3', '4', '5', '6', '7', '8', '9'}
 
 # Dictionary of dice: Contains colours = [value, dice1, dice2, dice3, dice4]
 # Initialize dice = dictionary of colours, each with four dice, each die = [position, probability]
@@ -402,14 +403,14 @@ def check_board(board):
         return True
 
 def print_menu():
-    #print("\n1: Print board")
     print("\n1: Make classical move")
     print("2: Make superposition move")
     print("3: Make entanglement move")
     print("4: Observe colour")
     print("5: Observe board")
     print("6: Finalize")
-    print("0: Menu")
+    print("0: Print current board")
+    print("m: Menu")
     print("q: Quit")
     return True
 
@@ -481,7 +482,7 @@ def calculateProbs(board):
     boards = []
     for i in range(4):
         boards.append(hboards)
-    #print(boards) # 2^9 = 262,144 boards
+    #print(boards) # 4^9 = 262,144 boards
     #boardColours = findBoardColours(board)
     #for colour in boardColours:
     #    observeColour(boards[1], colour, 1)
@@ -492,55 +493,78 @@ def calculateProbs(board):
 #### PLAY THE GAME ####
 #######################
 
-print("\nWelcome to TiqTaqToe!")
+print("\nWelcome to TiqTaqToe (d4 version)!")
 print_menu()
 print_board(mainBoard)
 
 while(True):
-    action = input("\nWhat would you like to do? (0: Menu, q: Quit)\n> ")
+    action = input("\nWhat would you like to do? (m: Menu, q: Quit)\n> ")
     if action == "1":
-        colour = input("\nWhich colour? \n(X: green/turqs/ocean/prple/sprkl) \n(O: yllow/ornge/smoke/blank)\n> ")
+        colour = input("\nWhich colour? (q: Back) \n(X: green/turqs/ocean/prple/sprkl) \n(O: yllow/ornge/smoke/blank)\n> ")
+        if colour == "q" or colour == "Q":
+            continue
         if colour not in allColours:
             print("\nError: Not a colour")
             continue
-        square = int(input("\nWhere? (1-9)\n> ")) - 1
-        if square not in range(9):
+        square = input("\nWhere? (1-9, q: Back)\n> ")
+        if square == "q" or square == "Q":
+            continue
+        if square not in allSquares:
             print("\nError: Not a square")
             continue
+        square = int(square) - 1
         classic_move(mainBoard, mainDice, colour, square)
         print_board(mainBoard)
     elif action == "2":
-        colour = input("\nWhich colour? \n(X: green/turqs/ocean/prple/sprkl) \n(O: yllow/ornge/smoke/blank)\n> ")
+        colour = input("\nWhich colour? (q: Back) \n(X: green/turqs/ocean/prple/sprkl) \n(O: yllow/ornge/smoke/blank)\n> ")
+        if colour == "q" or colour == "Q":
+            continue
         if colour not in allColours:
             print("\nError: Not a colour")
             continue
-        square1 = int(input("\nWhere? (1-9)\n> ")) - 1
-        if square1 not in range(9):
+        square1 = input("\nWhere? (1-9, q: Back)\n> ")
+        if square1 == "q" or square1 == "Q":
+            continue
+        if square1 not in allSquares:
             print("\nError: Not a square")
             continue
-        square2 = int(input("\nWhere else? (1-9)\n> ")) - 1
-        if square2 not in range(9):
+        square1 = int(square1) - 1
+        square2 = input("\nWhere else? (1-9, q: Back)\n> ")
+        if square2 == "q" or square2 == "Q":
+            continue
+        if square2 not in allSquares:
             print("\nError: Not a square")
             continue
+        square2 = int(square2) - 1
         superpos_move(mainBoard, mainDice, colour, square1, square2)
         print_board(mainBoard)
     elif action == "3":
-        colour = input("\nWhich colour? \n(X: green/turqs/ocean/prple/sprkl) \n(O: yllow/ornge/smoke/blank)\n> ")
+        colour = input("\nWhich colour? (q: Back)\n(X: green/turqs/ocean/prple/sprkl) \n(O: yllow/ornge/smoke/blank)\n> ")
+        if colour == "q" or colour == "Q":
+            continue
         if colour not in allColours:
             print("\nError: Not a colour")
             continue
-        square1 = int(input("\nWhere? (1-9)\n> ")) - 1
-        if square1 not in range(9):
+        square1 = input("\nWhere? (1-9, q: Back)\n> ")
+        if square1 == "q" or square1 == "Q":
+            continue
+        if square1 not in allSquares:
             print("\nError: Not a square")
             continue
-        square2 = int(input("\nWhere else? (1-9)\n> ")) - 1
-        if square2 not in range(9):
+        square1 = int(square1) - 1
+        square2 = input("\nWhere else? (1-9, q: Back)\n> ")
+        if square2 == "q" or square2 == "Q":
+            continue
+        if square2 not in allSquares:
             print("\nError: Not a square")
             continue
+        square2 = int(square2) - 1
         entang_move(mainBoard, mainDice, colour, square1, square2)
         print_board(mainBoard)
     elif action == "4":
-        colour = input("\nWhich colour? \n(X: green/turqs/ocean/prple/sprkl) \n(O: yllow/ornge/smoke/blank)\n> ")
+        colour = input("\nWhich colour? (q: Back) \n(X: green/turqs/ocean/prple/sprkl) \n(O: yllow/ornge/smoke/blank)\n> ")
+        if colour == "q" or colour == "Q":
+            continue
         if colour not in allColours:
             print("\nError: Not a colour")
             continue
@@ -562,6 +586,8 @@ while(True):
         check_board(mainBoard)
         break
     elif action == "0":
+        print_board(mainBoard)
+    elif action == "m" or action == "M":
         print_menu()
     elif action == "q" or action == "Q":
         print("\nBye!")
