@@ -409,7 +409,7 @@ def print_menu():
     print("4: Observe colour")
     print("5: Observe board")
     print("6: Finalize")
-    print("0: Print current board")
+    print("0: Show current board")
     print("m: Menu")
     print("q: Quit")
     return True
