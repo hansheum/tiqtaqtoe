@@ -232,14 +232,16 @@ def observeColour(board, dice, colour, roll):
     # Dictionary "dice" contains colours = [value, die1, die2, die3, die4], each die = [position, probability]
     # board: [square0, ..., square8], with squarei = [[X, probX, colour, die number], [O, probO, colour, die number]]
     assert isinstance(colour, str) # Ensure that colour is a string and not an array (as previously)
-    print("DEBUG observeColour: board = ")
-    print(board)
+    #print("DEBUG observeColour: board = ")
+    #print(board)
     boardColours = findBoardColours(board)
     if colour not in boardColours:
         print("\nError: Colour not on board")
         return False
     if roll not in range(1,5):
         print("\nError: Roll not between 1 and 4")
+        return False
+    if colour == 'obsrv':
         return False
     value = dice[colour][0]
     onBoard = [] # Dice of colour currently on board
@@ -263,13 +265,13 @@ def observeColour(board, dice, colour, roll):
     if len(possibilities) != 4:
         print("\nError: Number of possibilities =/= 4.")
         return False
-    print("DEBUG observeColour: possibilities = ")
-    print(possibilities)
-    print("DEBUG observeColour: roll = " + str(roll))
+    #print("DEBUG observeColour: possibilities = ")
+    #print(possibilities)
+    #print("DEBUG observeColour: roll = " + str(roll))
     measuredDie = possibilities[roll - 1][0]
-    print("DEBUG observeColour: measuredDie = " + str(measuredDie))
+    #print("DEBUG observeColour: measuredDie = " + str(measuredDie))
     measuredSquare = possibilities[roll - 1][1]
-    print("DEBUG observeColour: measuredSquare = " + str(measuredSquare))
+    #print("DEBUG observeColour: measuredSquare = " + str(measuredSquare))
     # Update colour:
     for die in onBoard:
         if die == measuredDie: # Give prob 1
@@ -314,10 +316,10 @@ def observeColour(board, dice, colour, roll):
                     doubleDie = board[square][0][3]
                     dice[doubleColour][doubleDie][1] = 2*dice[doubleColour][doubleDie][1] # Double prob of die
                     board[square][0][1] = 2*board[square][0][1] # Double prob
-    print("\n" + colour + " " + str(value) + " die observed in square " + str(measuredSquare))
+    print("\n" + colour + " " + str(value) + " die observed in square " + str(measuredSquare+1))
     return True
 
-def measureBoard(board, dice):
+def observeBoard(board, dice):
     print("\nObserving board...")
     boardColours = findBoardColours(board)
     for colour in boardColours:
@@ -391,16 +393,16 @@ def check_board(board):
     if canXWin(board):
         if canOWin(board):
             print("\nDraw!")
-            return True
+            return 'D'
         else:
             print("\nX won!")
-            return True
+            return 'X'
     elif canOWin(board):
         print("\nO won!")
-        return True
+        return 'O'
     else:
         print("\nDraw!")
-        return True
+        return 'D'
 
 def print_menu():
     print("\n1: Make classical move")
@@ -408,7 +410,8 @@ def print_menu():
     print("3: Make entanglement move")
     print("4: Observe colour")
     print("5: Observe board")
-    print("6: Finalize")
+    print("6: Show win probabilities")
+    print("7: Finalize")
     print("0: Show current board")
     print("m: Menu")
     print("q: Quit")
@@ -422,8 +425,10 @@ def print_menu():
 # list-copy-issue, solution found here: 
 #https://stackoverflow.com/questions/2612802/how-do-i-clone-a-list-so-that-it-doesnt-change-unexpectedly-after-assignment
 def enumerateBoards(board, dice, colours, n):
-    print("\nDEBUG: n = " + str(n) + ", colours = ")
-    print(colours)
+    # NB: number of colours n must be input explicitly to enable recursion
+    # (Better solution would be to let n be an optional argument.)
+    #print("\nDEBUG: n = " + str(n) + ", colours = ")
+    #print(colours)
     boards = []
     diceSets = []
     for i in range(4):
@@ -432,62 +437,49 @@ def enumerateBoards(board, dice, colours, n):
         diceSets.append(copy.deepcopy(dice)) 
         #print("\nDEBUG: boards[i] PRE OBSERVING")
         #print(boards[i])
-        observeColour(boards[i], dice[i], colours[n-1], i+1)
+        #print("\nDEBUG: diceSets[i] PRE OBSERVING")
+        #print(diceSets[i])
+        observeColour(boards[i], diceSets[i], colours[n-1], i+1)
         #print("\nDEBUG: boards[i] POST OBSERVING")
         #print(boards[i])
         #print("DEBUG: END")
-    #if n > 1:
-    #    boards.append(enumerateBoards(board, colours, n-1)) # RECURSION!!
+    if n > 1:
+        boards.append(enumerateBoards(board, dice, colours, n-1)) # RECURSION!!
     #print(boards)
     return boards
 
-# superpos_move(mainBoard, mainDice, 'turqs', 5, 6)
-# superpos_move(mainBoard, mainDice, 'smoke', 2, 3)
-# #mainBoard2 = copy.deepcopy(mainBoard)
-# #observeColour(mainBoard, mainDice, 'turqs', 1)
-# #observeColour(mainBoard2, 'turqs', 3) # ??? hvorfor er possibilities ulike mellom disse to?
-# # SVAR: Fordi at de driver og redigerer på det globale dice-biblioteket... howtofix
-# enumerateBoards(mainBoard, mainDice, ['turqs', 'smoke'], 2)
+superpos_move(mainBoard, mainDice, 'turqs', 5, 6)
+superpos_move(mainBoard, mainDice, 'smoke', 2, 3)
+#mainBoard2 = copy.deepcopy(mainBoard)
+#observeColour(mainBoard, mainDice, 'turqs', 1)
+#observeColour(mainBoard, mainDice, 'turqs', 3) # ??? hvorfor er possibilities ulike mellom disse to?
+# SVAR: Fordi at de driver og redigerer på det globale dice-biblioteket... howtofix
+enumeratedBoards = enumerateBoards(mainBoard, mainDice, ['turqs', 'smoke'], 2)
+#print(enumeratedBoards)
 
 # WIP!!
-def calculateProbs(board):
+def calculateProbs(board, dice):
+    # To-do: make a function that checks that board and dice are consistent
     boardColours = findBoardColours(board)
-    numberOfColours = len(boardColours)
-    enumerateBoards(board, boardColours, numberOfColours)
-    for a in range(4):
-        aboards.append(board)
-        for colour in boardColours:
-            observeColour(board, dice, colour, roll)
-    bboards = []
-    for b in range(4):
-        bboards.append(aboards)
-    cboards = []
-    for c in range(4):
-        cboards.append(bboards)
-    dboards = []
-    for d in range(4):
-        dboards.append(cboards)
-    eboards = []
-    for e in range(4):
-        eboards.append(dboards)
-    fboards = []
-    for f in range(4):
-        fboards.append(eboards)
-    gboards = []
-    for g in range(4):
-        gboards.append(fboards)
-    hboards = []
-    for h in range(4):
-        hboards.append(gboards)
-    boards = []
-    for i in range(4):
-        boards.append(hboards)
-    #print(boards) # 4^9 = 262,144 boards
-    #boardColours = findBoardColours(board)
-    #for colour in boardColours:
-    #    observeColour(boards[1], colour, 1)
+    boards = enumerateBoards(board, dice, boardColours, len(boardColours))
+    possibilities = len(boards)
+    Xwins = 0
+    Owins = 0
+    Draws = 0
+    for boardi in boards:
+        resulti = check_board(board)
+        if resulti == 'X':
+            Xwins += 1
+        elif resulti == 'O':
+            Owins += 1
+        else:
+            Draws += 1
+    Xprob = Xwins/possibilities
+    Oprob = Owins/possibilities
+    probs = [Xprob, Oprob]
+    return probs
 
-#calculateProbs(mainBoard)
+print(calculateProbs(mainBoard, mainDice))
 
 #######################
 #### PLAY THE GAME ####
@@ -572,9 +564,13 @@ while(True):
         observeColour(mainBoard, mainDice, colour, roll)
         print_board(mainBoard)
     elif action == "5":
-        measureBoard(mainBoard)
+        observeBoard(mainBoard, mainDice)
         print_board(mainBoard)
     elif action == "6":
+        probs = calculateProbs(mainBoard, mainDice)
+        print("The current win probabilities are\nX: " + str(probs[0]) +
+              ", O: " + str(probs[1]))
+    elif action == "7":
         measured = True
         boardColours = findBoardColours(mainBoard)
         for colour in allColours:
