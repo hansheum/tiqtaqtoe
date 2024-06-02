@@ -463,28 +463,25 @@ def print_menu():
 def enumerateBoards(board, dice, colours, n):
     # NB: number of colours n must be input explicitly to enable recursion
     # (Better solution would be to let n be an optional argument.)
-    #print("\nDEBUG: n = " + str(n) + ", colours = ")
-    #print(colours)
+    print("\nDEBUG: colour n = " + str(n) + " = " + colours[n-1])
     boards = []
     diceSets = []
     if boardIsObserved(board):
         boards.append(copy.deepcopy(board)) 
         return boards
     for i in range(4):
-        #print("\nDEBUG: i = " + str(i))
         boards.append(copy.deepcopy(board)) 
         diceSets.append(copy.deepcopy(dice)) 
-        #print("\nDEBUG: boards[i] PRE OBSERVING")
-        #print(boards[i])
-        #print("\nDEBUG: diceSets[i] PRE OBSERVING")
-        #print(diceSets[i])
         observeColour(boards[i], diceSets[i], colours[n-1], i+1, False)
-        #print("\nDEBUG: boards[i] POST OBSERVING")
-        #print(boards[i])
-        #print("DEBUG: END")
-    if n > 1:
-        boards += enumerateBoards(board, dice, colours, n-1) # RECURSION!!
-    #print(boards)
+        print("\nDEBUG: board (i, n) = (" + str(i) + ", " + str(n) + ") post obs")
+        print_board(boards[i])
+        if n > 1:
+            print("\nDEBUG: Recursion - Push")
+            boards += enumerateBoards(boards[i], diceSets[i], colours, n-1) # RECURSION!!
+            print("\nDEBUG: Recursion - Pop")
+            print("\nDEBUG: Length of boards = " + str(len(boards)))
+        else:
+            print("\nDEBUG: Done measuring board i = " + str(i))
     return boards
 
 superpos_move(mainBoard, mainDice, 'turqs', 5, 6, True)
@@ -501,6 +498,8 @@ entang_move(mainBoard, mainDice, 'ocean', 1, 2, True)
 def calculateProbs(board, dice):
     # To-do: make a function that checks that board and dice are consistent
     boardColours = findBoardColours(board)
+    print("DEBUG: board colours =")
+    print(boardColours)
     boards = enumerateBoards(board, dice, boardColours, len(boardColours))
     possibilities = len(boards)
     Xwins = 0
