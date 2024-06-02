@@ -484,10 +484,10 @@ def enumerateBoards(board, dice, colours, n):
             print("\nDEBUG: Done measuring board i = " + str(i))
     return boards
 
-superpos_move(mainBoard, mainDice, 'turqs', 5, 6, True)
-superpos_move(mainBoard, mainDice, 'smoke', 2, 3, True)
-classic_move(mainBoard, mainDice, 'green', 8, True)
-entang_move(mainBoard, mainDice, 'ocean', 1, 2, True)
+#superpos_move(mainBoard, mainDice, 'turqs', 5, 6, True)
+#superpos_move(mainBoard, mainDice, 'smoke', 2, 3, True)
+#classic_move(mainBoard, mainDice, 'green', 8, True)
+#entang_move(mainBoard, mainDice, 'ocean', 1, 2, True)
 #mainBoard2 = copy.deepcopy(mainBoard)
 #observeColour(mainBoard, mainDice, 'turqs', 1)
 #observeColour(mainBoard, mainDice, 'turqs', 3) # ??? hvorfor er possibilities ulike mellom disse to?
@@ -611,9 +611,10 @@ while(True):
         observeBoard(mainBoard, mainDice, verbose)
         print_board(mainBoard)
     elif action == "6":
-        probs = calculateProbs(mainBoard, mainDice)
-        print("\nThe current win probabilities are\nX: " + str(probs[0]) +
-              ", O: " + str(probs[1]))
+        #probs = calculateProbs(mainBoard, mainDice)
+        #print("\nThe current win probabilities are\nX: " + str(probs[0]) +
+        #      ", O: " + str(probs[1]))
+        print("\n(Work-in-progress)")
     elif action == "7":
         if check_board(mainBoard, True):
             break
