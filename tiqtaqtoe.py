@@ -1,3 +1,6 @@
+# Copyright 2023 The Unitary Authors
+# See https://github.com/quantumlib/unitary/tree/main/unitary/examples/tictactoe
+
 import random
 import copy
 
@@ -477,7 +480,7 @@ def enumerateBoards(board, dice, colours, n):
         print_board(boards[i])
         if n > 1:
             print("\nDEBUG: Recursion - Push")
-            boards += enumerateBoards(boards[i], diceSets[i], colours, n-1) # RECURSION!!
+            boards.append(enumerateBoards(boards[i], diceSets[i], colours, n-1)) # RECURSION!!
             print("\nDEBUG: Recursion - Pop")
             print("\nDEBUG: Length of boards = " + str(len(boards)))
         else:
